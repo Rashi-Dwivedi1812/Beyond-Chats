@@ -7,41 +7,65 @@ import { rewriteArticle } from "./rewriteWithLLM.js";
 import { publishUpdatedArticle } from "./publishArticle.js";
 
 const runAutomation = async () => {
-  const { data: articles } = await axios.get(process.env.API_BASE_URL);
+  console.log("🚀 Automation started");
 
-  for (let article of articles) {
+  const { data: articles } = await axios.get(process.env.API_BASE_URL);
+  console.log(`📄 Articles fetched: ${articles.length}`);
+
+  for (const article of articles) {
     if (article.isUpdated) continue;
 
     console.log(`🔍 Processing: ${article.title}`);
 
-    // 1. Google search
+    // 1️⃣ Google search
     const links = await googleSearch(article.title);
-    if (links.length < 2) {
-      console.log("❌ Not enough reference articles found");
+
+    if (!links.length) {
+      console.log("❌ No reference links found");
       continue;
     }
 
-    // 2. Scrape references
-    const ref1 = await scrapeArticleContent(links[0]);
-    const ref2 = await scrapeArticleContent(links[1]);
+    // 2️⃣ Scrape references safely
+    const references = [];
 
-    if (!ref1 || !ref2) continue;
+    for (const link of links) {
+      const content = await scrapeArticleContent(link);
+      if (content && content.length > 300) {
+        references.push({ link, content });
+      }
+      if (references.length === 2) break;
+    }
 
-    // 3. Rewrite using LLM
-    const updatedContent = await rewriteArticle(
-      article.content,
-      ref1,
-      ref2,
-      links
-    );
+    if (references.length === 0) {
+      console.log("❌ No usable reference articles");
+      continue;
+    }
 
-    // 4. Publish
+    // 3️⃣ Rewrite using LLM (with fallback)
+    let updatedContent;
+    try {
+      updatedContent = await rewriteArticle(
+        article.content,
+        references[0].content,
+        references[1]?.content || "",
+        references.map(r => r.link)
+      );
+    } catch (err) {
+      console.log("⚠️ OpenAI failed, using original content");
+      updatedContent = article.content;
+    }
+
+    // 4️⃣ Publish updated article
     await publishUpdatedArticle(
       article._id,
       updatedContent,
-      links
+      references.map(r => r.link)
     );
+
+    console.log("✅ Article updated\n");
   }
+
+  console.log("🎉 Automation completed");
 };
 
 runAutomation();

@@ -7,20 +7,21 @@ export const googleSearch = async (query) => {
     params: {
       q: query,
       api_key: process.env.SERP_API_KEY,
-      num: 5
-    }
+      num: 10,
+    },
   });
 
-  // Filter blog/article links, exclude BeyondChats
   const organicResults = response.data.organic_results || [];
 
-  const filtered = organicResults
+  const links = organicResults
     .map(r => r.link)
     .filter(link =>
       link &&
       !link.includes("beyondchats.com") &&
-      (link.includes("blog") || link.includes("article"))
+      !link.includes("youtube.com") &&
+      !link.includes(".pdf")
     );
 
-  return filtered.slice(0, 2);
+  // Return first 2 valid links
+  return links.slice(0, 2);
 };
