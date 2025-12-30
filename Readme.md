@@ -203,6 +203,13 @@ SERP_API_KEY=your_google_search_key
 ```
 --- 
 
+## 🖼 Screenshots
+
+### 📊 Article Dashboard
+![Article Dashboard](screenshots/ArticleCards.png)
+
+---
+
 ## 🧪 Demo & Deployment Notes
 - Backend deployed on Render
 - Frontend deployed on Vercel
