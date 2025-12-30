@@ -2,71 +2,34 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import Article from "../models/Article.js";
 
-export const scrapeOldestArticles = async () => {
-  console.log("🔍 Scraper started");
+const BLOG_URL = "https://beyondchats.com/blogs/";
 
-  const { data } = await axios.get("https://beyondchats.com/blogs/", {
-    headers: {
-      "User-Agent": "Mozilla/5.0",
-    },
-  });
-
+export const scrapeBeyondChats = async () => {
+  const { data } = await axios.get(BLOG_URL);
   const $ = cheerio.load(data);
 
-  const articleLinks = [];
+  const articles = [];
 
-  // PRIMARY selector
-  $("a").each((_, el) => {
-    const href = $(el).attr("href");
-    if (
-      href &&
-      href.includes("/blogs/") &&
-      !href.includes("#") &&
-      articleLinks.length < 5
-    ) {
-      const fullUrl = href.startsWith("http")
-        ? href
-        : `https://beyondchats.com${href}`;
-      articleLinks.push(fullUrl);
-    }
+  $(".blog-item a").slice(-5).each((_, el) => {
+    articles.push($(el).attr("href"));
   });
 
-  console.log("🧩 Article links found:", articleLinks.length);
+  for (let link of articles) {
+    const { data: html } = await axios.get(link);
+    const page = cheerio.load(html);
 
-  let insertedCount = 0;
+    const title = page("h1").text().trim();
+    const content = page(".blog-content").text().trim();
 
-  for (const link of articleLinks) {
-    const page = await axios.get(link, {
-      headers: { "User-Agent": "Mozilla/5.0" },
-    });
-
-    const $$ = cheerio.load(page.data);
-
-    const title =
-      $$("h1").first().text().trim() ||
-      $$("title").text().trim();
-
-    let content = "";
-    $$("p").each((_, p) => {
-      content += $$(p).text().trim() + "\n";
-    });
-
-    if (!title || content.length < 100) {
-      console.log("⚠️ Skipping weak article:", link);
-      continue;
-    }
+    // Prevent duplicates
+    const exists = await Article.findOne({ title, isOriginal: true });
+    if (exists) continue;
 
     await Article.create({
       title,
       content,
-      url: link,
+      isOriginal: true,
       isUpdated: false,
-      references: [],
     });
-
-    insertedCount++;
   }
-
-  console.log("✅ Scraper finished");
-  console.log("📦 Articles inserted:", insertedCount);
 };

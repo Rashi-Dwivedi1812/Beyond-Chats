@@ -1,68 +1,73 @@
 import Article from "../models/Article.js";
+import { scrapeBeyondChats } from "../services/scrapeBeyondChats.js";
 
-/**
- * GET all articles
- */
-export const getAllArticles = async (req, res) => {
+/* =========================
+   GET all articles
+========================= */
+export const getArticles = async (req, res) => {
   try {
     const articles = await Article.find().sort({ createdAt: -1 });
     res.json(articles);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch articles" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-/**
- * GET single article by ID
- */
-export const getArticle = async (req, res) => {
-  try {
-    const article = await Article.findById(req.params.id);
-    if (!article) {
-      return res.status(404).json({ message: "Article not found" });
-    }
-    res.json(article);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch article" });
-  }
-};
-
-/**
- * CREATE article
- */
+/* =========================
+   CREATE original article
+========================= */
 export const createArticle = async (req, res) => {
   try {
-    const article = await Article.create(req.body);
+    const article = await Article.create({
+      ...req.body,
+      isOriginal: true,
+      isUpdated: false,
+    });
     res.status(201).json(article);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to create article" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 };
 
-/**
- * UPDATE article
- */
-export const updateArticle = async (req, res) => {
+/* =========================
+   CREATE AI-updated article
+========================= */
+export const createUpdatedArticle = async (req, res) => {
   try {
-    const updated = await Article.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(updated);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update article" });
+    const {
+      title,
+      content,
+      references,
+      originalArticleId,
+    } = req.body;
+
+    if (!originalArticleId) {
+      return res.status(400).json({
+        error: "originalArticleId is required",
+      });
+    }
+
+    const updatedArticle = await Article.create({
+      title,
+      content,
+      references,
+      isOriginal: false,
+      isUpdated: true,
+      originalArticleId,
+    });
+
+    res.status(201).json(updatedArticle);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 };
 
-/**
- * DELETE article
- */
-export const deleteArticle = async (req, res) => {
+export const scrapeArticles = async (req, res) => {
   try {
-    await Article.findByIdAndDelete(req.params.id);
-    res.json({ message: "Article deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to delete article" });
+    await scrapeBeyondChats();
+    res.json({ message: "Scraping completed successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Scraping failed" });
   }
 };
