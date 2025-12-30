@@ -6,4 +6,7 @@ const API = axios.create({
     "http://localhost:5000/api/articles",
 });
 
-export const fetchArticles = () => API.get("/");
+export const fetchArticles = async () => {
+  const response = await API.get("/");
+  return response.data;
+};
