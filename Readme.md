@@ -82,7 +82,7 @@ The system **scrapes original blog articles**, enhances them using **external re
 │ ├── index.js
 │ ├── googleSearch.js
 │ ├── scrapeArticle.js
-| ├── publishArticle.js
+│ ├── publishArticle.js
 │ └── rewriteWithLLM.js
 │
 ├── frontend/
