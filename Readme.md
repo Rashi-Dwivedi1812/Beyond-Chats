@@ -5,18 +5,35 @@
 
 ---
 
+## 🌐 Live Demo
+The project is deployed using modern cloud platforms for easy access and review.
+
+### 🔗 Frontend (React Dashboard)
+Live URL:
+[https://beyond-chats-eosin-kappa.vercel.app](https://beyond-chats-eosin-kappa.vercel.app
+)
+
+### 🔗 Backend API (Node + Express)
+API Base URL:
+https://beyond-chats-qfrq.onrender.com/api/articles
+
+⚠️ Note: Backend may take a few seconds to wake up on first request (free-tier behavior).
+
+---
+
 ## 👋 Overview (For Recruiters)
 
 This project is a **production-style full stack automation system** built as part of a Full Stack Development internship assignment.
 
 It demonstrates my ability to:
-- Design clean backend APIs
-- Scrape and process real-world web data
-- Build reliable automation pipelines
-- Integrate AI services responsibly (with fallbacks)
-- Present data clearly using a modern React UI
+- Build scalable backend APIs
+- Design robust automation pipelines
+- Work with web scraping & data ingestion
+- Integrate AI services with graceful fallbacks
+- Maintain data integrity & versioning
+- Deliver a clean, professional frontend experience
 
-The system **scrapes original blog articles**, enhances them using **external references and AI**, and displays **both original and updated versions** without overwriting data.
+⚠️ Original data is never overwritten — AI-enhanced content is published as a separate version, following industry best practices.
 
 ---
 
@@ -110,13 +127,17 @@ The system **scrapes original blog articles**, enhances them using **external re
 {
   "title": "Article Title",
   "content": "AI-enhanced content",
-  "references": ["external_link_1", "external_link_2"],
+  "references": [
+    "https://example.com/article1",
+    "https://example.com/article2"
+  ],
   "isOriginal": false,
   "isUpdated": true,
   "originalArticleId": "ObjectId"
 }
 ```
 
+--- 
 ## 🔄 Automation Workflow (Phase 2)
 - The automation script performs the following steps:
 - Fetches original articles from backend API
@@ -181,6 +202,14 @@ OPENAI_API_KEY=your_openai_key
 SERP_API_KEY=your_google_search_key
 ```
 --- 
+
+## 🧪 Demo & Deployment Notes
+- Backend deployed on Render
+- Frontend deployed on Vercel
+- Demo data seeding included for visual clarity
+- Automation can be run locally or via cron
+
+---
 
 ## 📌 Final Note
 This project focuses on engineering quality, robustness, and clarity, closely aligning with real-world full stack development workflows used in production systems.
