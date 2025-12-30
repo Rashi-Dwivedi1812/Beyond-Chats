@@ -18,11 +18,24 @@ export const getArticles = async (req, res) => {
 ========================= */
 export const createArticle = async (req, res) => {
   try {
+    // Prevent duplicate originals
+    const existing = await Article.findOne({
+      title: req.body.title,
+      isOriginal: true,
+    });
+
+    if (existing) {
+      return res.status(200).json(existing);
+    }
+
     const article = await Article.create({
-      ...req.body,
+      title: req.body.title,
+      content: req.body.content,
+      references: req.body.references || [],
       isOriginal: true,
       isUpdated: false,
     });
+
     res.status(201).json(article);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -47,6 +60,16 @@ export const createUpdatedArticle = async (req, res) => {
       });
     }
 
+    // Prevent duplicate AI versions
+    const exists = await Article.findOne({
+      originalArticleId,
+      isUpdated: true,
+    });
+
+    if (exists) {
+      return res.status(200).json(exists);
+    }
+
     const updatedArticle = await Article.create({
       title,
       content,
@@ -62,6 +85,9 @@ export const createUpdatedArticle = async (req, res) => {
   }
 };
 
+/* =========================
+   SCRAPE original blogs
+========================= */
 export const scrapeArticles = async (req, res) => {
   try {
     await scrapeBeyondChats();
