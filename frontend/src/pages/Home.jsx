@@ -9,14 +9,25 @@ const Home = () => {
 
   useEffect(() => {
     fetchArticles()
-      .then(res => {
-        setArticles(res.data);
+      .then(data => {
+        setArticles(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(err => {
+        console.error("Failed to fetch articles", err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) return <Loader />;
+
+  if (articles.length === 0) {
+    return (
+      <p className="text-center text-gray-500 mt-10">
+        No articles available
+      </p>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
