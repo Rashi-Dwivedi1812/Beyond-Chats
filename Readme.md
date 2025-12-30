@@ -182,8 +182,9 @@ SERP_API_KEY=your_google_search_key
 --- 
 
 ## 📌 Final Note
-This project focuses on engineering quality, robustness, and clarity, closely aligning with real-world full stack development workflows.
+This project focuses on engineering quality, robustness, and clarity, closely aligning with real-world full stack development workflows used in production systems.
+
+---
+
 Thank you for reviewing my submission.
 
---- 
-This project focuses on engineering quality, robustness, and clarity, closely aligning with real-world full stack development workflows used in production systems.
