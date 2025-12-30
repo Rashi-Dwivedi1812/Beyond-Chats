@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/articles",
+  baseURL:
+    process.env.REACT_APP_API_BASE_URL ||
+    "http://localhost:5000/api/articles",
 });
 
 export const fetchArticles = () => API.get("/");
